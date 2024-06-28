@@ -31,11 +31,11 @@ services:
       - mynetwork
 
   influxdb:
-    image: influxdb:1.8
+    image: influxdb:2.0
     ports:
       - '8086:8086'
     volumes:
-      - influxdb-data:/var/lib/influxdb
+      - influxdb-data:/var/lib/influxdb2
     networks:
       - mynetwork
     environment:

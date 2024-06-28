@@ -11,7 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.33.2",
+    "i": "^0.3.7",
     "influx": "^5.9.3",
-    "nats": "^2.27.0"
+    "nats": "^2.27.0",
+    "npm": "^10.8.1"
   }
 }
