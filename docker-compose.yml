@@ -1,0 +1,114 @@
+version: '3'
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - 1883:1883
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - mynetwork
+
+  nats:
+    image: nats:latest
+    ports:
+      - '4222:4222'
+    networks:
+      - mynetwork
+  
+  sensor:
+    build: ./Sensor
+    depends_on:
+      - mosquitto
+    networks:
+      - mynetwork
+
+  grafana:
+    image: grafana/grafana
+    ports: 
+      - '27018:3000'
+    networks:
+      - mynetwork
+
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - '8086:8086'
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    networks:
+      - mynetwork
+    environment:
+      - INFLUXDB_DB=mydb
+
+  manager:
+      image: emqx/ekuiper-manager:latest
+      container_name: ekuiper-manager
+      ports:
+      - "9082:9082"
+      restart: unless-stopped
+      networks:
+        - mynetwork
+      environment:
+        DEFAULT_EKUIPER_ENDPOINT: "http://ekuiper:9081"
+
+  ekuiper:
+      image: lfedge/ekuiper:latest
+      ports:
+        - "9081:9081"
+        - "127.0.0.1:20498:20498"
+      container_name: ekuiper
+      hostname: ekuiper
+      restart: unless-stopped
+      user: root
+      volumes:
+        - /tmp/data:/kuiper/data
+        - /tmp/log:/kuiper/log
+        - ./mqtt-source.yml:/kuiper/etc/sources/mqtt_source.yml
+      networks:
+        - mynetwork
+
+  setup-ekuiper:
+    build: ./Ekuiper-Setup
+    depends_on: 
+      - ekuiper
+    networks:
+      - mynetwork
+
+  filter:
+    build: ./Filter
+    depends_on:
+      - mosquitto
+      - nats
+    networks:
+      - mynetwork
+
+  dashboard:
+    build: ./Dashboard
+    depends_on:
+      - influxdb
+      - filter
+    networks:
+      - mynetwork
+
+  command-backend:
+    build: ./Command/command-backend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mosquitto
+    networks:
+      - mynetwork
+
+  command-frontend:
+    build: ./Command/command-frontend
+    ports:
+      - '5000:3000'
+    networks:
+      - mynetwork
+
+volumes:
+  influxdb-data:
+
+networks:
+  mynetwork:

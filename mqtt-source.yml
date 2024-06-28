@@ -1,0 +1,3 @@
+default:
+  servers:
+    - server: "mqtt://mosquitto:1883"

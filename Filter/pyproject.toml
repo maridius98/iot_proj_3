@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "filter"
+version = "0.1.0"
+description = ""
+authors = ["maridius98 <maridius98@yahoo.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+nats-py = "^2.7.2"
+paho-mqtt = "^2.1.0"
+mqtt = "^0.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
